@@ -1,0 +1,185 @@
+-- 3. Du¿e obiekty tekstowe
+
+-- 1.
+CREATE TABLE DOKUMENTY (
+    ID NUMBER(12) PRIMARY KEY,
+    DOKUMENT CLOB
+);
+
+-- 2.
+
+DECLARE
+    l_document CLOB;
+BEGIN
+    FOR i IN 1..10000 LOOP
+        l_document := l_document || 'Oto tekst. ';
+    END LOOP;
+
+    INSERT INTO DOKUMENTY (ID, DOKUMENT)
+    VALUES (1, l_document);
+
+    COMMIT;
+END;
+/
+
+-- 3.
+
+SELECT * FROM DOKUMENTY;
+
+SELECT UPPER(DOKUMENT) AS DOKUMENT_WIELKIE_LITERY
+FROM DOKUMENTY
+WHERE ID = 1;
+
+SELECT LENGTH(DOKUMENT) AS ROZMIAR_DOKUMENTU
+FROM DOKUMENTY
+WHERE ID = 1;
+
+SELECT DBMS_LOB.GETLENGTH(DOKUMENT) AS ROZMIAR_DOKUMENTU
+FROM DOKUMENTY
+WHERE ID = 1;
+
+SELECT SUBSTR(DOKUMENT, 5, 1000) AS FRAGMENT_DOKUMENTU
+FROM DOKUMENTY
+WHERE ID = 1;
+
+-- 4.
+
+INSERT INTO DOKUMENTY (ID, DOKUMENT)
+VALUES (2, EMPTY_CLOB());
+
+COMMIT;
+
+-- 5.
+
+INSERT INTO DOKUMENTY (ID, DOKUMENT)
+VALUES (3, NULL);
+
+COMMIT;
+
+-- 6.
+
+SELECT * FROM DOKUMENTY;
+
+SELECT ID, UPPER(DOKUMENT) AS DOKUMENT_WIELKIE_LITERY
+FROM DOKUMENTY;
+
+SELECT ID, LENGTH(DOKUMENT) AS ROZMIAR_DOKUMENTU
+FROM DOKUMENTY;
+
+SELECT ID, DBMS_LOB.GETLENGTH(DOKUMENT) AS ROZMIAR_DOKUMENTU
+FROM DOKUMENTY;
+
+SELECT ID, SUBSTR(DOKUMENT, 5, 1000) AS FRAGMENT_DOKUMENTU
+FROM DOKUMENTY;
+
+SELECT ID, DBMS_LOB.SUBSTR(DOKUMENT, 1000, 5) AS FRAGMENT_DOKUMENTU
+FROM DOKUMENTY;
+
+-- 7.
+
+DECLARE
+    l_bfile BFILE;
+    l_clob CLOB;
+BEGIN
+    l_bfile := BFILENAME('TEMP_DIR', 'dokument.txt');
+    
+    SELECT DOKUMENT
+    INTO l_clob
+    FROM DOKUMENTY
+    WHERE ID = 2
+    FOR UPDATE;
+
+    DBMS_LOB.FILEOPEN(l_bfile, DBMS_LOB.FILE_READONLY);
+    
+    DBMS_LOB.LOADCLOBFROMFILE(
+        dest_lob => l_clob,
+        src_bfile => l_bfile,
+        amount => DBMS_LOB.GETLENGTH(l_bfile),
+        dest_offset => 1,
+        src_offset => 1,
+        charset_id => 0,
+        lang_context => 0
+    );
+
+    DBMS_LOB.FILECLOSE(l_bfile);
+    
+    COMMIT;
+
+END;
+/
+
+-- 8.
+
+UPDATE DOKUMENTY
+SET DOKUMENT = TO_CLOB(BFILENAME('TEMP_DIR', 'dokument.txt'))
+WHERE ID = 3;
+
+COMMIT;
+
+-- 9.
+
+SELECT * FROM DOKUMENTY;
+
+-- 10.
+
+SELECT ID, 
+       DBMS_LOB.GETLENGTH(DOKUMENT) AS ROZMIAR_DOKUMENTU
+FROM DOKUMENTY;
+
+-- 11.
+
+DROP TABLE DOKUMENTY;
+
+-- 12.
+
+CREATE OR REPLACE PROCEDURE CLOB_CENSOR (
+    p_clob     IN OUT CLOB,
+    p_word     IN VARCHAR2
+) AS
+    l_pos      INTEGER := 1;       
+    l_length   INTEGER := LENGTH(p_word);
+    l_replace  VARCHAR2(l_length);
+BEGIN
+    l_replace := LPAD('.', l_length, '.');
+
+    l_pos := INSTR(p_clob, p_word, l_pos);
+
+    WHILE l_pos > 0 LOOP
+        DBMS_LOB.WRITE(p_clob, l_length, l_pos, l_replace);
+
+        l_pos := INSTR(p_clob, p_word, l_pos + l_length);
+    END LOOP;
+END CLOB_CENSOR;
+/
+
+-- 13.
+
+CREATE TABLE BIOGRAPHIES_COPY AS
+SELECT * FROM BIOGRAPHIES;
+
+DECLARE
+    l_clob CLOB;
+BEGIN
+    SELECT BIOGRAPHY INTO l_clob 
+    FROM BIOGRAPHIES_COPY 
+    WHERE PERSON = 'Jara Cimrman' 
+    FOR UPDATE;
+
+    CLOB_CENSOR(l_clob, 'Cimrman');
+
+    UPDATE BIOGRAPHIES_COPY 
+    SET BIOGRAPHY = l_clob 
+    WHERE PERSON = 'Jara Cimrman';
+
+    COMMIT;
+END;
+/
+
+-- 14.
+DROP TABLE BIOGRAPHIES_COPY;
+
+
+
+
+
+
