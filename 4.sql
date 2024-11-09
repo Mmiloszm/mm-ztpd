@@ -1,0 +1,76 @@
+-- ZAJECIA 4
+
+-- A
+CREATE TABLE FIGURY (
+    ID       NUMBER(1) PRIMARY KEY,
+    KSZTALT  MDSYS.SDO_GEOMETRY
+);
+
+-- B
+-- figura 1
+INSERT INTO FIGURY VALUES (
+  1,
+  MDSYS.SDO_GEOMETRY(
+    2003, 
+    NULL,  
+    NULL,
+    SDO_ELEM_INFO_ARRAY(1,1003,4),
+    SDO_ORDINATE_ARRAY(5, 7, 7, 5, 5, 3) 
+  )
+);
+
+-- figura 2
+INSERT INTO FIGURY (ID, KSZTALT) VALUES (
+    2,
+    MDSYS.SDO_GEOMETRY(
+        2003,  
+        NULL,  
+        NULL,
+        SDO_ELEM_INFO_ARRAY(1, 1003, 3),  
+        SDO_ORDINATE_ARRAY(2, 2, 5, 5) 
+    )
+);
+
+-- figura 3
+INSERT INTO FIGURY VALUES (
+  3,
+  MDSYS.SDO_GEOMETRY(
+    2002,  
+    NULL,  
+    NULL,
+    SDO_ELEM_INFO_ARRAY(1,2,2),
+    SDO_ORDINATE_ARRAY(6, 2, 7, 3, 8, 2)
+  )
+);
+
+-- C otwarty wielokat
+INSERT INTO FIGURY (ID, KSZTALT) VALUES (
+    4,
+    MDSYS.SDO_GEOMETRY(
+        2003, 
+        NULL,
+        NULL,
+        MDSYS.SDO_ELEM_INFO_ARRAY(1, 1003, 3), 
+        MDSYS.SDO_ORDINATE_ARRAY(2, 2, 5, 2, 5, 5)
+    )
+);
+
+-- D.
+SELECT 
+    ID,
+    SDO_GEOM.VALIDATE_GEOMETRY_WITH_CONTEXT(KSZTALT, 0.005) AS IS_VALID
+FROM 
+    FIGURY;
+    
+-- E.
+DELETE FROM FIGURY WHERE ID = 4;
+
+-- F.
+COMMIT;
+
+    
+
+
+
+
+
