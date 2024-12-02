@@ -1,0 +1,62 @@
+9.
+<xsl:apply-templates select="SWIAT/KRAJE/KRAJ"/>
+
+11.
+<xsl:apply-templates select="SWIAT/KRAJE/KRAJ[@KONTYNENT='k1']"/>
+
+12.
+<xsl:apply-templates select="SWIAT/KRAJE/KRAJ[@KONTYNENT=/SWIAT/KONTYNENTY/KONTYNENT[NAZWA='Europe']/@ID]"/>
+
+15.
+Liczba krajów: <xsl:value-of select="count(SWIAT/KRAJE/KRAJ[@KONTYNENT=/SWIAT/KONTYNENTY/KONTYNENT[NAZWA='Europe']/@ID])"/>
+
+21.
+<xsl:sort select="NAZWA" order="ascending"/>
+
+27.
+for $k in doc('...')/SWIAT/KRAJE/KRAJ
+return <KRAJ>
+  {$k/NAZWA, $k/STOLICA}
+</KRAJ>
+
+28.
+for $k in doc('...')/SWIAT/KRAJE/KRAJ
+where starts-with($k/NAZWA, 'A')
+return <KRAJ>
+  {$k/NAZWA, $k/STOLICA}
+</KRAJ>
+
+29.
+for $k in doc('...')/SWIAT/KRAJE/KRAJ
+where substring($k/NAZWA, 1, 1) = substring($k/STOLICA, 1, 1)
+return <KRAJ>
+  {$k/NAZWA, $k/STOLICA}
+</KRAJ>
+
+32.
+for $pracownik in doc('...')/ZESPOLY/ROW/PRACOWNICY/ROW
+return $pracownik/NAZWISKO
+
+33.
+for $zesp in doc('...')/ZESPOLY/ROW
+where $zesp/NAZWA = 'SYSTEMY EKSPERCKIE'
+for $pracownik in $zesp/PRACOWNICY/ROW
+return $pracownik/NAZWISKO
+
+34.
+let $pracownicy := doc('...')/ZESPOLY/ROW[ID_ZESP=10]/PRACOWNICY/ROW
+return count($pracownicy)
+
+35.
+for $pracownik in doc('...')/ZESPOLY/ROW/PRACOWNICY/ROW
+where $pracownik/ID_SZEFA = 100
+return $pracownik/NAZWISKO
+
+36.
+let $zespol := doc('...')/ZESPOLY/ROW[PRACOWNICY/ROW[NAZWISKO='BRZEZINSKI']/ID_ZESP]
+let $pracownicy := $zespol/PRACOWNICY/ROW
+return sum($pracownicy/PLACA_POD)
+
+
+
+
