@@ -1,0 +1,180 @@
+5.
+for $book in doc("db/bib/bib.xml")//book
+for $author in $book/author
+return $author/last
+
+6.
+for $book in doc("db/bib/bib.xml")//book
+for $title in $book/title
+for $author in $book/author
+return 
+  <książka>
+    <author>
+      <last>{$author/last/text()}</last>
+      <first>{$author/first/text()}</first>
+    </author>
+	<title>{$title/text()}</title>
+  </książka>
+  
+7.
+for $book in doc("db/bib/bib.xml")//book
+for $title in $book/title
+for $author in $book/author
+return 
+  <książka>
+    <autor>{concat($author/last/text(), $author/first/text())}</autor>
+    <tytuł>{$title/text()}</tytuł>
+  </książka>
+
+
+8.
+for $book in doc("db/bib/bib.xml")//book
+for $title in $book/title
+for $author in $book/author
+return 
+  <książka>
+	 <autor>{concat($author/last/text(), " ", $author/first/text())}</autor>
+    <tytuł>{$title/text()}</tytuł>
+  </książka>
+  
+9.
+<wynik>
+{
+  for $book in doc("db/bib/bib.xml")//book
+  for $title in $book/title
+  for $author in $book/author
+  return 
+    <książka>
+      <tytuł>{$title/text()}</tytuł>
+      <autor>{concat($author/last/text(), " ", $author/first/text())}</autor>
+    </książka>
+}
+</wynik>
+
+10.
+<imiona>
+{
+  for $book in doc("db/bib/bib.xml")//book[title = "Data on the Web"]
+  for $author in $book/author
+  return <imie>{$author/first/text()}</imie>
+}
+</imiona>
+
+11.
+a)
+<DataOnTheWeb>
+{
+  doc("db/bib/bib.xml")/bib/book[title = "Data on the Web"]
+}
+</DataOnTheWeb>
+
+b)
+<DataOnTheWeb>
+{
+  for $b in doc("db/bib/bib.xml")//book
+  where $b/title = "Data on the Web"
+  return $b
+}
+</DataOnTheWeb>
+
+12.
+<Data>
+{
+  for $b in doc("db/bib/bib.xml")//book
+  where contains($b/title, "Data")
+  for $a in $b/author
+  return <nazwisko>{$a/last/text()}</nazwisko>
+}
+</Data>
+
+13.
+<Data>
+{
+  for $b in doc("db/bib/bib.xml")//book
+  where contains($b/title, "Data")
+  return (
+    <title>{$b/title/text()}</title>,
+    for $a in $b/author
+    return <nazwisko>{$a/last/text()}</nazwisko>
+  )
+}
+</Data>
+
+14.
+for $b in doc("db/bib/bib.xml")//book
+where count($b/author) <= 2
+return <title>{$b/title/text()}</title>
+
+15.
+for $b in doc("db/bib/bib.xml")//book
+return 
+  <ksiazka>
+    <title>{$b/title/text()}</title>
+    <autorow>{count($b/author)}</autorow>
+  </ksiazka>
+
+16.
+let $years := for $b in doc("db/bib/bib.xml")//book
+              return xs:integer($b/@year)
+return
+<przedział>{min($years)} - {max($years)}</przedział>
+
+17.
+let $prices := for $b in doc("db/bib/bib.xml")//book
+               return xs:double($b/price)
+return
+<różnica>{max($prices) - min($prices)}</różnica>
+
+18.
+let $minPrice := min(for $b in doc("db/bib/bib.xml")//book return xs:double($b/price))
+return
+<najtańsze>
+{
+  for $b in doc("db/bib/bib.xml")//book[price = $minPrice]
+  return
+    <najtańsza>
+      { $b/title }
+      { $b/author }
+    </najtańsza>
+}
+</najtańsze>
+
+19.
+for $last in distinct-values(doc("db/bib/bib.xml")//author/last)
+let $titles := doc("db/bib/bib.xml")//book[author/last = $last]/title
+return
+  <autor>
+    <last>{$last}</last>
+    { for $t in $titles return <title>{$t/text()}</title> }
+  </autor>
+
+20.
+<wynik>
+{
+  for $play in collection("db/shakespeare")//PLAY
+  return <TITLE>{$play/TITLE/text()}</TITLE>
+}
+</wynik>
+
+21.
+for $play in collection("db/shakespeare")//PLAY
+where some $l in $play//LINE satisfies contains($l, "or not to be")
+return <TITLE>{$play/TITLE/text()}</TITLE>
+
+22.
+<wynik>
+{
+  for $play in collection("db/shakespeare")//PLAY
+  let $postaci := count($play//PERSONA)
+  let $aktow := count($play/ACT)
+  let $scen := count($play//SCENE)
+  return
+    <sztuka tytul="{string($play/TITLE)}">
+      <postaci>{$postaci}</postaci>
+      <aktow>{$aktow}</aktow>
+      <scen>{$scen}</scen>
+    </sztuka>
+}
+</wynik>
+
+
