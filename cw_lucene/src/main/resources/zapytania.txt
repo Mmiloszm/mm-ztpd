@@ -1,0 +1,21 @@
+1. Query q = new QueryParser("isbn", analyzer).parse("9780062316097");
+2. Query q = new QueryParser("title", analyzer).parse("urodzić");
+3. Query q = new QueryParser("title", analyzer).parse("rodzić");
+4. Query q = new QueryParser("title", analyzer).parse("ro*");
+5. Query q = new QueryParser("title", analyzer).parse("ponieważ");
+6. Query q = new QueryParser("title", analyzer).parse("+Lucyna +akcja");
+7. Query q = new QueryParser("title", analyzer).parse("+akcja -Lucyna");
+8. Query q = new QueryParser("title", analyzer).parse("\"naturalnie morderca\"~2");
+9. Query q = new QueryParser("title", analyzer).parse("\"naturalnie morderca\"~1");
+10. Query q = new QueryParser("title", analyzer).parse("\"naturalnie morderca\"");
+11. Query q = new QueryParser("title", analyzer).parse("naturalne");
+12. Query q = new QueryParser("title", analyzer).parse("naturalne~");
+
+
+Katalog zawiera pliki .cfe, .cfs, .si, segments_N, write_lock
+
+Po ponownym uruchomieniu lucene nie usuwa istniejących plików tylko tworzy kolejne N+1,
+nadpisywany jest jedynie plik segments_N.
+
+Po ponownym uruchomieniu wyniki wyszukiwania będą zduplikowane przez to, że wyszukiwanie
+przeprowadzane jest na całym katalogu indeksu.
